@@ -1,11 +1,11 @@
 {
   "required": true,
   "minVersion": "0.8",
-  "package": "hunternif.mc.atlas.mixin",
+  "package": "hunternif.atlas.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
-    "NetClientHandlerMixin",
     "NetHandlerMixin",
+    "NetClientHandlerMixin",
     "NetServerHandlerMixin"
   ],
   "client": [

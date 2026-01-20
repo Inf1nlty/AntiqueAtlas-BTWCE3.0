@@ -3,10 +3,10 @@ package btw.community.antiqueatlas;
 import api.AddonHandler;
 import api.BTWAddon;
 
-import hunternif.mc.atlas.AntiqueAtlasItems;
-import hunternif.mc.atlas.AntiqueAtlasMod;
-import hunternif.mc.atlas.AntiqueAtlasRecipes;
-import hunternif.mc.atlas.network.AntiqueAtlasNetwork;
+import hunternif.atlas.AntiqueAtlasItems;
+import hunternif.atlas.AntiqueAtlasMod;
+import hunternif.atlas.AntiqueAtlasRecipes;
+import hunternif.atlas.network.AntiqueAtlasNetwork;
 
 public class AntiqueAtlasAddon extends BTWAddon {
 
