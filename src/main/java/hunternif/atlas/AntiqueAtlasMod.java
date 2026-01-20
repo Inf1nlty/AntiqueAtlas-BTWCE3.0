@@ -46,14 +46,6 @@ public class AntiqueAtlasMod {
         }
     }
 
-    public static void onWorldLoad(World world) {
-        if (world != null && !world.isRemote) {
-            extBiomeData.onWorldLoad(world);
-            globalMarkersData.onWorldLoad(world);
-            villageWatcher.onWorldLoad(world);
-        }
-    }
-
     public static void updateBiomeTextureConfig() {
     }
 
