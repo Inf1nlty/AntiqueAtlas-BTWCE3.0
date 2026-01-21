@@ -13,7 +13,7 @@ public class AntiqueAtlasMod {
 
     public static final ExtBiomeDataHandler extBiomeData = new ExtBiomeDataHandler();
     public static final GlobalMarkersDataHandler globalMarkersData = new GlobalMarkersDataHandler();
-    private static final VillageWatcher villageWatcher = new VillageWatcher();
+    public static final VillageWatcher villageWatcher = new VillageWatcher();
     public static final SettingsConfig settings = new SettingsConfig();
 
     public static void initialize() {
