@@ -1,4 +1,4 @@
-package hunternif.atlas. network;
+package hunternif.atlas.network;
 
 import api.BTWAddon;
 import hunternif.atlas.AntiqueAtlasItems;

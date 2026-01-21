@@ -15,6 +15,14 @@ public class PutBiomeTilePacket extends Packet {
     public int z;
     public int biomeID;
 
+    public PutBiomeTilePacket() {
+        this.atlasID = -1;
+        this.dimension = 0;
+        this.x = 0;
+        this.z = 0;
+        this.biomeID = 0;
+    }
+
     public PutBiomeTilePacket(int atlasID, int dimension, int x, int z, int biomeID) {
         this.atlasID = atlasID;
         this.dimension = dimension;
@@ -23,14 +31,17 @@ public class PutBiomeTilePacket extends Packet {
         this.biomeID = biomeID;
     }
 
+    @Override
     public void readPacketData(DataInput in) throws IOException {
-        this.atlasID = in.readUnsignedShort();
-        this.dimension = in.readUnsignedShort();
+        // Use readShort for atlasID/dimension/biomeID to match writeShort below
+        this.atlasID = in.readShort();
+        this.dimension = in.readShort();
         this.x = in.readInt();
         this.z = in.readInt();
-        this.biomeID = in.readUnsignedShort();
+        this.biomeID = in.readShort();
     }
 
+    @Override
     public void writePacketData(DataOutput out) throws IOException {
         out.writeShort(this.atlasID);
         out.writeShort(this.dimension);
@@ -39,10 +50,12 @@ public class PutBiomeTilePacket extends Packet {
         out.writeShort(this.biomeID);
     }
 
+    @Override
     public void processPacket(NetHandler handler) {
         ((AtlasNetHandler)handler).handleMapData(this);
     }
 
+    @Override
     public int getPacketSize() {
         return 14;
     }

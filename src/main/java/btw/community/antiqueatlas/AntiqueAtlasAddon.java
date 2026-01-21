@@ -7,6 +7,8 @@ import hunternif.atlas.AntiqueAtlasItems;
 import hunternif.atlas.AntiqueAtlasMod;
 import hunternif.atlas.AntiqueAtlasRecipes;
 import hunternif.atlas.network.AntiqueAtlasNetwork;
+import hunternif.atlas.network.AtlasVanillaPacketRegistry;
+
 import net.minecraft.src.EntityPlayerMP;
 import net.minecraft.src.NetServerHandler;
 
@@ -14,13 +16,15 @@ public class AntiqueAtlasAddon extends BTWAddon {
 
     @Override
     public void initialize() {
-        AddonHandler. logMessage(getName() + " v" + getVersionString() + " Initializing...");
+        AddonHandler.logMessage(getName() + " v" + getVersionString() + " Initializing...");
 
         AntiqueAtlasMod.initialize();
 
         AntiqueAtlasItems.registerItems();
 
         AntiqueAtlasRecipes.registerRecipes();
+
+        AtlasVanillaPacketRegistry.registerAll();
 
         AntiqueAtlasNetwork.register(this);
 
