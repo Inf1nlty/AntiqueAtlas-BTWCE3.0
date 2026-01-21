@@ -177,104 +177,42 @@ public class AntiqueAtlasNetwork {
     }
 
     @Environment(EnvType.CLIENT)
-    private static void sendPutBiomeTile(int atlasID, int dimension, int biomeID, int x, int z) {
-        try {
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            DataOutputStream dos = new DataOutputStream(bos);
-            dos.writeByte(OP_PUT_BIOME_TILE);
-            dos.writeInt(atlasID);
-            dos.writeInt(dimension);
-            dos.writeInt(biomeID);
-            dos.writeInt(x);
-            dos.writeInt(z);
-            dos.close();
-            sendToServer(bos.toByteArray());
-        } catch (IOException e) {
-        }
+    public static void sendPutBiomeTile(int atlasID, int dimension, int biomeID, int x, int z) {
+        PutBiomeTilePacket pkt = new PutBiomeTilePacket(atlasID, dimension, x, z, biomeID);
+        AtlasNetwork.sendToServer(pkt);
     }
 
     @Environment(EnvType.CLIENT)
     public static void sendAddMarker(int atlasID, String type, String label, int x, int z, boolean visibleAhead) {
-        try {
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            DataOutputStream dos = new DataOutputStream(bos);
-            dos.writeByte(OP_ADD_MARKER);
-            dos.writeInt(atlasID);
-            dos.writeUTF(type);
-            dos.writeUTF(label);
-            dos.writeInt(x);
-            dos.writeInt(z);
-            dos.writeBoolean(visibleAhead);
-            dos.close();
-            sendToServer(bos.toByteArray());
-        } catch (IOException e) {
-        }
+        AddMarkerPacket pkt = new AddMarkerPacket(atlasID, Minecraft.getMinecraft().theWorld.provider.dimensionId, type, label, x, z, visibleAhead);
+        AtlasNetwork.sendToServer(pkt);
     }
 
     @Environment(EnvType.CLIENT)
     public static void sendDeleteMarker(int atlasID, int markerID) {
-        try {
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            DataOutputStream dos = new DataOutputStream(bos);
-            dos.writeByte(OP_DELETE_MARKER);
-            dos.writeInt(atlasID);
-            dos.writeInt(markerID);
-            dos.close();
-            sendToServer(bos.toByteArray());
-        } catch (IOException e) {
-        }
+        DeleteMarkerPacket pkt = new DeleteMarkerPacket(atlasID, markerID);
+        AtlasNetwork.sendToServer(pkt);
     }
 
     @Environment(EnvType.CLIENT)
     public static void sendRegisterTileId(String name) {
-        try {
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            DataOutputStream dos = new DataOutputStream(bos);
-            dos.writeByte(OP_REGISTER_TILE_ID);
-            dos.writeUTF(name);
-            dos.close();
-            sendToServer(bos.toByteArray());
-        } catch (IOException e) {
-        }
+        RegisterTileIdPacket pkt = new RegisterTileIdPacket(name);
+        AtlasNetwork.sendToServer(pkt);
     }
 
     public static void sendTilesToPlayer(EntityPlayerMP player, int atlasID, int dimension, int[][] tiles) {
-        try {
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            DataOutputStream dos = new DataOutputStream(bos);
-            dos.writeByte(OP_TILES);
-            dos.writeInt(atlasID);
-            dos.writeInt(dimension);
-            dos.writeInt(tiles.length);
-            for (int[] tile : tiles) {
-                dos.writeInt(tile[0]);
-                dos.writeInt(tile[1]);
-                dos.writeInt(tile[2]);
-            }
-            dos.close();
-            sendToPlayer(player, bos.toByteArray());
-        } catch (IOException e) {
+        TilesPacket pkt = new TilesPacket(dimension);
+        for (int[] t : tiles) {
+            pkt.addTile(t[0], t[1], t[2]);
         }
+        AtlasNetwork.sendTo(pkt, player);
     }
 
     public static void sendMarkersToPlayer(EntityPlayerMP player, int atlasID, Marker[] markers) {
-        try {
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            DataOutputStream dos = new DataOutputStream(bos);
-            dos.writeByte(OP_MARKERS);
-            dos.writeInt(atlasID);
-            dos.writeInt(markers.length);
-            for (Marker marker : markers) {
-                dos.writeUTF(marker.getType());
-                dos.writeUTF(marker.getLabel());
-                dos.writeInt(marker.getX());
-                dos.writeInt(marker.getZ());
-                dos.writeBoolean(marker.isVisibleAhead());
-            }
-            dos.close();
-            sendToPlayer(player, bos.toByteArray());
-        } catch (IOException e) {
-        }
+        MarkersPacket pkt;
+        if (atlasID == -1) pkt = new MarkersPacket(markers.length > 0 ? markers[0].getDimension() : 0, markers);
+        else pkt = new MarkersPacket(atlasID, markers.length > 0 ? markers[0].getDimension() : 0, markers);
+        AtlasNetwork.sendTo(pkt, player);
     }
 
     @Environment(EnvType.CLIENT)
