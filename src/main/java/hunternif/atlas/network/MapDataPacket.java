@@ -12,6 +12,9 @@ public class MapDataPacket extends Packet {
     public int atlasID;
     public byte[] data;
 
+    public MapDataPacket() {
+    }
+
     public MapDataPacket(int atlasID, byte[] data) {
         this.atlasID = atlasID;
         this.data = data;
@@ -31,10 +34,10 @@ public class MapDataPacket extends Packet {
     }
 
     public void processPacket(NetHandler handler) {
-        ((AtlasNetHandler)handler).handleMapData(this);
+        ((AtlasNetHandler) handler).handleMapData(this);
     }
 
     public int getPacketSize() {
-        return 6 + this.data.length;
+        return 6 + (this.data == null ? 0 : this.data.length);
     }
 }

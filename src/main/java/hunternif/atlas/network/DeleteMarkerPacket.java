@@ -13,6 +13,9 @@ public class DeleteMarkerPacket extends Packet {
     public int atlasID;
     public int markerID;
 
+    public DeleteMarkerPacket() {
+    }
+
     public DeleteMarkerPacket(int atlasID, int markerID) {
         this.atlasID = atlasID;
         this.markerID = markerID;
@@ -37,7 +40,7 @@ public class DeleteMarkerPacket extends Packet {
     }
 
     public void processPacket(NetHandler handler) {
-        ((AtlasNetHandler)handler).handleMapData(this);
+        ((AtlasNetHandler) handler).handleMapData(this);
     }
 
     public int getPacketSize() {
