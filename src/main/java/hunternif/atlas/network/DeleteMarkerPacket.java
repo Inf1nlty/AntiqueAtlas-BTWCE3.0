@@ -8,9 +8,6 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
-/**
- * Packet used to broadcast marker deletion to clients.
- */
 public class DeleteMarkerPacket extends Packet {
     private static final int GLOBAL = -1;
     public int atlasID;
@@ -28,32 +25,25 @@ public class DeleteMarkerPacket extends Packet {
         this(-1, markerID);
     }
 
-    @Override
     public void readPacketData(DataInput in) throws IOException {
-        // IMPORTANT: readShort preserves signed short values (so -1 stays -1).
-        // Previously readUnsignedShort caused -1 to be parsed as 65535, breaking global marker handling.
-        this.atlasID = in.readShort();
+        this.atlasID = in.readUnsignedShort();
         this.markerID = in.readInt();
     }
 
-    @Override
     public void writePacketData(DataOutput out) throws IOException {
-        // Atlas ID is written as a short (signed); -1 -> 0xFFFF and read back with readShort -> -1.
         out.writeShort(this.atlasID);
         out.writeInt(this.markerID);
     }
 
     public boolean isGlobal() {
-        return this.atlasID == GLOBAL;
+        return this.atlasID == -1;
     }
 
-    @Override
     public void processPacket(NetHandler handler) {
         ((AtlasNetHandler) handler).handleMapData(this);
     }
 
-    @Override
     public int getPacketSize() {
-        return 6; // 2 bytes (short) + 4 bytes (int)
+        return 6;
     }
 }

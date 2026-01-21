@@ -31,7 +31,7 @@ public class NetServerHandlerMixin implements AtlasNetHandler {
     @Override
     public void handleMapData(AddMarkerPacket pkt) {
 
-        if (!this.playerEntity.inventory.hasItemStack(
+        if (!this. playerEntity.inventory.hasItemStack(
                 new ItemStack(AntiqueAtlasItems.itemAtlas, 1, pkt.atlasID))) {
             Log.error("Player %s attempted to put marker into someone else's Atlas #%d",
                     this.playerEntity.username,
@@ -53,7 +53,7 @@ public class NetServerHandlerMixin implements AtlasNetHandler {
 
         MarkersPacket packetForClients = new MarkersPacket(
                 pkt.atlasID,
-                pkt.dimension,
+                pkt. dimension,
                 new Marker[]{marker});
         AtlasNetwork.sendToAll(packetForClients);
     }
@@ -85,26 +85,20 @@ public class NetServerHandlerMixin implements AtlasNetHandler {
 
     @Override
     public void handleMapData(DeleteMarkerPacket pkt) {
-        // FIX: handle global deletes first (global deletion should not require the player to hold an atlas).
-        if (pkt.isGlobal()) {
-            AtlasAPI.getMarkerAPI().deleteGlobalMarker(
-                    this.playerEntity.worldObj,
-                    pkt.markerID);
-            return;
-        }
-
-        // For non-global deletions, verify player holds the atlas with specified atlasID:
         if (!this.playerEntity.inventory.hasItemStack(
                 new ItemStack(AntiqueAtlasItems.itemAtlas, 1, pkt.atlasID))) {
             Log.error("Player %s attempted to delete marker from someone else's Atlas #%d",
                     this.playerEntity.username,
                     pkt.atlasID);
-            return;
+        } else if (pkt.isGlobal()) {
+            AtlasAPI.getMarkerAPI().deleteGlobalMarker(
+                    this.playerEntity. worldObj,
+                    pkt.markerID);
+        } else {
+            AtlasAPI.getMarkerAPI().deleteMarker(
+                    this.playerEntity.worldObj,
+                    pkt.atlasID,
+                    pkt.markerID);
         }
-
-        AtlasAPI.getMarkerAPI().deleteMarker(
-                this.playerEntity.worldObj,
-                pkt.atlasID,
-                pkt.markerID);
     }
 }
