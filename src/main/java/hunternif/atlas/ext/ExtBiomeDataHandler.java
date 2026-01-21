@@ -1,11 +1,27 @@
 package hunternif.atlas.ext;
 
+import hunternif.atlas.api.AtlasAPI;
+import hunternif.atlas.client.TextureSet;
+import net.minecraft.src.BiomeGenBase;
 import net.minecraft.src.EntityPlayer;
 import net.minecraft.src.World;
 
 public class ExtBiomeDataHandler {
     private static final String DATA_KEY = "aAtlasExtTiles";
     private ExtBiomeData data;
+
+    public ExtBiomeDataHandler() {
+        registerVanillaBiomes();
+    }
+
+    private void registerVanillaBiomes() {
+
+
+        // 针叶林 -> 松树
+        AtlasAPI.getTileAPI().setBiomeTexture(BiomeGenBase.taiga.biomeID, TextureSet.PINES);
+        AtlasAPI.getTileAPI().setBiomeTexture(BiomeGenBase.taigaHills.biomeID, TextureSet.PINES_HILLS);
+
+    }
 
     public void onWorldLoad(World world) {
         if (!world.isRemote) {
@@ -16,7 +32,6 @@ public class ExtBiomeDataHandler {
                 world.setItemData("aAtlasExtTiles", this.data);
             }
         }
-
     }
 
     public ExtBiomeData getData() {
