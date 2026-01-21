@@ -2,6 +2,7 @@ package hunternif.atlas.ext;
 
 import hunternif.atlas.api.AtlasAPI;
 import hunternif.atlas.client.TextureSet;
+
 import net.minecraft.src.BiomeGenBase;
 import net.minecraft.src.EntityPlayer;
 import net.minecraft.src.World;
@@ -16,8 +17,6 @@ public class ExtBiomeDataHandler {
 
     private void registerVanillaBiomes() {
 
-
-        // 针叶林 -> 松树
         AtlasAPI.getTileAPI().setBiomeTexture(BiomeGenBase.taiga.biomeID, TextureSet.PINES);
         AtlasAPI.getTileAPI().setBiomeTexture(BiomeGenBase.taigaHills.biomeID, TextureSet.PINES_HILLS);
 
