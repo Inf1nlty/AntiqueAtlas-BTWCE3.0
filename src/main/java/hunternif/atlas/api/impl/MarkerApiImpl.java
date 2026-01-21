@@ -10,7 +10,6 @@ import hunternif.atlas.network.AddMarkerPacket;
 import hunternif.atlas.network.AtlasNetwork;
 import hunternif.atlas.network.DeleteMarkerPacket;
 import hunternif.atlas.network.MarkersPacket;
-import hunternif.atlas.util.Log;
 import net.minecraft.src.ResourceLocation;
 import net.minecraft.src.World;
 
@@ -32,21 +31,23 @@ public class MarkerApiImpl implements MarkerAPI {
     private void doPutMarker(World world, boolean visibleAhead, int atlasID, String markerType, String label, int x, int z) {
         if (world.isRemote) {
             if (atlasID == -1) {
-                Log.warn("Client tried to add a global marker!", new Object[0]);
+
             } else {
+
                 AtlasNetwork.sendToServer(new AddMarkerPacket(atlasID, world.provider.dimensionId, markerType, label, x, z, visibleAhead));
             }
         } else {
             if (atlasID == -1) {
                 MarkersData data = AntiqueAtlasMod.globalMarkersData.getData();
                 Marker marker = data.createAndSaveMarker(markerType, label, world.provider.dimensionId, x, z, visibleAhead);
-                AtlasNetwork.sendToAll(new MarkersPacket(world.provider.dimensionId, new Marker[]{marker}));
+                MarkersPacket pkt = new MarkersPacket(world.provider.dimensionId, new Marker[] { marker });
+                AtlasNetwork.sendToAll(pkt);
             } else {
                 MarkersData data2 = AntiqueAtlasItems.itemAtlas.getMarkersData(atlasID, world);
                 Marker marker2 = data2.createAndSaveMarker(markerType, label, world.provider.dimensionId, x, z, visibleAhead);
-                AtlasNetwork.sendToAll(new MarkersPacket(atlasID, world.provider.dimensionId, new Marker[]{marker2}));
+                MarkersPacket pkt2 = new MarkersPacket(atlasID, world.provider.dimensionId, new Marker[]{marker2});
+                AtlasNetwork.sendToAll(pkt2);
             }
-
         }
     }
 
@@ -62,7 +63,6 @@ public class MarkerApiImpl implements MarkerAPI {
         DeleteMarkerPacket packet = atlasID == -1 ? new DeleteMarkerPacket(markerID) : new DeleteMarkerPacket(atlasID, markerID);
         if (world.isRemote) {
             if (atlasID == -1) {
-                Log.warn("Client tried to delete a global marker!", new Object[0]);
             } else {
                 AtlasNetwork.sendToServer(packet);
             }
@@ -74,7 +74,7 @@ public class MarkerApiImpl implements MarkerAPI {
                 markersData = AntiqueAtlasItems.itemAtlas.getMarkersData(atlasID, world);
             }
 
-            markersData.removeMarker(markerID);
+            Marker removed = markersData.removeMarker(markerID);
             AtlasNetwork.sendToAll(packet);
         }
     }

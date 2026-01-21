@@ -1,12 +1,11 @@
 package hunternif.atlas.marker;
 
 import hunternif.atlas.network.AntiqueAtlasNetwork;
-import hunternif.atlas.util.Log;
-import net.minecraft.src. EntityPlayer;
-import net.minecraft. src.EntityPlayerMP;
+import net.minecraft.src.EntityPlayer;
+import net.minecraft.src.EntityPlayerMP;
 import net.minecraft.src.NBTTagCompound;
 import net.minecraft.src.NBTTagList;
-import net. minecraft.src.WorldSavedData;
+import net.minecraft.src.WorldSavedData;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -53,7 +52,6 @@ public class MarkersData extends WorldSavedData {
     public void readFromNBT(NBTTagCompound compound) {
         int version = compound.getInteger(TAG_VERSION);
         if (version < VERSION) {
-            Log.warn("Outdated markers data format! Was {} but current is {}", version, VERSION);
             this.markDirty();
         }
 
@@ -76,7 +74,6 @@ public class MarkersData extends WorldSavedData {
                 } else {
                     id = markerTag.getInteger(TAG_MARKER_ID);
                     if (this.getMarkerByID(id) != null) {
-                        Log.warn("Loading marker with duplicate ID {}, generating new ID", id);
                         id = this.getNewID();
                     }
                 }
@@ -87,8 +84,8 @@ public class MarkersData extends WorldSavedData {
 
                 Marker marker = new Marker(
                         id,
-                        markerTag. getString(TAG_MARKER_TYPE),
-                        markerTag. getString(TAG_MARKER_LABEL),
+                        markerTag.getString(TAG_MARKER_TYPE),
+                        markerTag.getString(TAG_MARKER_LABEL),
                         dimensionID,
                         markerTag.getInteger(TAG_MARKER_X),
                         markerTag.getInteger(TAG_MARKER_Y),
@@ -101,26 +98,31 @@ public class MarkersData extends WorldSavedData {
 
     @Override
     public void writeToNBT(NBTTagCompound compound) {
-        Log.debug("Saving markers data to NBT");
+        // Build a dimension -> marker list map from the authoritative idMap
+        Map<Integer, List<Marker>> grouped = new HashMap<>();
+        for (Marker marker : idMap.values()) {
+            grouped.computeIfAbsent(marker.getDimension(), k -> new ArrayList<>()).add(marker);
+        }
+
         compound.setInteger(TAG_VERSION, VERSION);
         NBTTagList dimensionMapList = new NBTTagList();
 
-        for (Integer dimension : this.dimensionMap.keySet()) {
+        for (Map.Entry<Integer, List<Marker>> e : grouped.entrySet()) {
+            Integer dimension = e.getKey();
+            List<Marker> markers = e.getValue();
+
             NBTTagCompound tag = new NBTTagCompound();
             tag.setInteger(TAG_DIMENSION_ID, dimension);
-
-            DimensionMarkersData data = this.getMarkersDataInDimension(dimension);
             NBTTagList markersList = new NBTTagList();
 
-            for (Marker marker : data.getAllMarkersList()) {
-                Log.debug("Saving marker: {}", marker.toString());
+            for (Marker marker : markers) {
                 NBTTagCompound markerTag = new NBTTagCompound();
                 markerTag.setInteger(TAG_MARKER_ID, marker.getId());
                 markerTag.setString(TAG_MARKER_TYPE, marker.getType());
-                markerTag.setString(TAG_MARKER_LABEL, marker. getLabel());
+                markerTag.setString(TAG_MARKER_LABEL, marker.getLabel());
                 markerTag.setInteger(TAG_MARKER_X, marker.getX());
                 markerTag.setInteger(TAG_MARKER_Y, marker.getZ());
-                markerTag.setBoolean(TAG_MARKER_VISIBLE_AHEAD, marker. isVisibleAhead());
+                markerTag.setBoolean(TAG_MARKER_VISIBLE_AHEAD, marker.isVisibleAhead());
                 markersList.appendTag(markerTag);
             }
 
@@ -194,17 +196,19 @@ public class MarkersData extends WorldSavedData {
      * @return The removed marker, or null if not found
      */
     public Marker removeMarker(int id) {
-        Marker marker = this. getMarkerByID(id);
+        Marker marker = this.getMarkerByID(id);
         if (marker == null) {
             return null;
         }
 
-        if (this.idMap.remove(id) != null) {
+        // Remove from authoritative idMap first
+        Marker removed = this.idMap.remove(id);
+        if (removed != null) {
             this.getMarkersDataInDimension(marker.getDimension()).removeMarker(marker);
             this.markDirty();
         }
 
-        return marker;
+        return removed;
     }
 
     /**
@@ -220,7 +224,6 @@ public class MarkersData extends WorldSavedData {
      */
     public Marker createAndSaveMarker(String type, String label, int dimension, int x, int z, boolean visibleAhead) {
         Marker marker = new Marker(this.getNewID(), type, label, dimension, x, z, visibleAhead);
-        Log.info("Created new marker: {}", marker.toString());
 
         this.idMap.put(marker.getId(), marker);
         this.getMarkersDataInDimension(marker.getDimension()).insertMarker(marker);
@@ -268,15 +271,14 @@ public class MarkersData extends WorldSavedData {
 
         for (Integer dimension : this.dimensionMap.keySet()) {
             DimensionMarkersData data = this.getMarkersDataInDimension(dimension);
-            List<Marker> markers = data. getAllMarkersList();
+            List<Marker> markers = data.getAllMarkersList();
 
-            if (! markers.isEmpty()) {
+            if (!markers.isEmpty()) {
                 Marker[] markerArray = markers.toArray(new Marker[0]);
                 AntiqueAtlasNetwork.sendMarkersToPlayer(playerMP, atlasID, markerArray);
             }
         }
 
-        Log.info("Sent markers data #{} to player {}", atlasID, player.getCommandSenderName());
         this.playersSentTo.add(player);
     }
 
