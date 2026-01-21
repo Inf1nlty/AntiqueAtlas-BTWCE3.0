@@ -2,13 +2,12 @@ package hunternif.atlas.ext;
 
 import hunternif.atlas.AntiqueAtlasMod;
 import hunternif.atlas.api.AtlasAPI;
-import hunternif. atlas.marker.Marker;
+import hunternif.atlas.marker.Marker;
 import hunternif.atlas.marker.MarkersData;
-import hunternif.atlas.util.Log;
 import net.minecraft.src.*;
 
 import java.util.HashSet;
-import java.util. Iterator;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -23,17 +22,20 @@ public class VillageWatcher {
 
     public void onPopulateChunkPost(World world) {
         if (!world.isRemote) {
-            this. visitAllUnvisitedVillages(world);
+            this.visitAllUnvisitedVillages(world);
         }
     }
 
     public void visitAllUnvisitedVillages(World world) {
         VillageCollection villageCollection = world.villageCollectionObj;
         if (villageCollection != null) {
-            for(Object o : villageCollection.getVillageList()) {
-                Village village = (Village)o;
-                if (!this.visited.contains(village)) {
-                    this.visitVillage(world, village);
+            List villageList = villageCollection.getVillageList();
+            if (villageList != null) {
+                for(Object o : villageList) {
+                    Village village = (Village)o;
+                    if (!this.visited.contains(village)) {
+                        this.visitVillage(world, village);
+                    }
                 }
             }
         }
@@ -69,10 +71,17 @@ public class VillageWatcher {
         }
 
         if (!foundMarker) {
-            String label = I18n.getString("gui.antiqueatlas.marker.village");
-            if (label == null || label.isEmpty()) {
-                label = "Village";
+            // 强制使用英文以避免乱码，或者确保你的语言文件(lang)配置正确
+            String label = "Village";
+            try {
+                String translated = I18n.getString("gui.antiqueatlas.marker.village");
+                if (translated != null && !translated.isEmpty()) {
+                    label = translated;
+                }
+            } catch (Exception e) {
+                // 忽略翻译错误，使用默认值
             }
+
             AtlasAPI.getMarkerAPI().putGlobalMarker(world, false, "village", label, centerX, centerZ);
         }
 

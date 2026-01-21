@@ -4,6 +4,7 @@
   "package": "hunternif.atlas.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
+    "MixinChunkProviderServer",
     "NetHandlerMixin",
     "NetServerHandlerMixin"
   ],
