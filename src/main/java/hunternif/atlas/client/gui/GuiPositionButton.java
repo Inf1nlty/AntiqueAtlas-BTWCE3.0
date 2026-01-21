@@ -7,6 +7,7 @@ import java.util.Collections;
 
 import net.minecraft.src.Minecraft;
 import net.minecraft.src.RenderHelper;
+import net.minecraft.src.StatCollector;
 import org.lwjgl.opengl.GL11;
 
 public class GuiPositionButton extends GuiComponentButton {
@@ -33,7 +34,7 @@ public class GuiPositionButton extends GuiComponentButton {
             AtlasRenderHelper.drawFullTexture(Textures.BTN_POSITION, (double)x, (double)y, 11, 11);
             GL11.glDisable(3042);
             if (this.isMouseOver) {
-                this.drawTooltip(Collections.singletonList("跟随该玩家"), Minecraft.getMinecraft().fontRenderer);
+                this.drawTooltip(Collections.singletonList(StatCollector.translateToLocal("gui.antiqueatlas.followPlayer")), Minecraft.getMinecraft().fontRenderer);
             }
         }
 

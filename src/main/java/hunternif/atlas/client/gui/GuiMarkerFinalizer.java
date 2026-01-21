@@ -120,9 +120,9 @@ public class GuiMarkerFinalizer extends GuiComponent {
 
     public void drawScreen(int mouseX, int mouseY, float partialTick) {
         this.drawDefaultBackground();
-        this.drawCenteredString("标签:", this.height / 2 - 97, 16777215, true);
+        this.drawCenteredString(StatCollector.translateToLocal("gui.antiqueatlas.marker.label"), this.height / 2 - 97, 16777215, true);
         this.textField.drawTextBox();
-        this.drawCenteredString("类型:", this.height / 2 - 44, 16777215, true);
+        this.drawCenteredString(StatCollector.translateToLocal("gui.antiqueatlas.marker.type"), this.height / 2 - 44, 16777215, true);
         this.drawGradientRect(this.scroller.getGuiX() - 4, this.scroller.getGuiY() - 4, this.scroller.getGuiX() + this.scroller.getWidth() + 4, this.scroller.getGuiY() + this.scroller.getHeight() + 4, -2012213232, -1727000560);
         super.drawScreen(mouseX, mouseY, partialTick);
     }

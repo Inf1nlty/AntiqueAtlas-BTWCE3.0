@@ -7,6 +7,7 @@ import hunternif.atlas.util.AtlasRenderHelper;
 
 import net.minecraft.src.Minecraft;
 import net.minecraft.src.ResourceLocation;
+import net.minecraft.src.StatCollector;
 
 import java.util.Collections;
 import java.util.Map;
@@ -49,7 +50,7 @@ public class GuiScaleBar extends GuiComponent {
         if (texture != null) {
             AtlasRenderHelper.drawFullTexture(texture, (double)this.getGuiX(), (double)this.getGuiY(), 20, 8);
             if (this.isMouseOver) {
-                this.drawTooltip(Collections.singletonList("以方块缩放"), Minecraft.getMinecraft().fontRenderer);
+                this.drawTooltip(Collections.singletonList(StatCollector.translateToLocal("gui.antiqueatlas.scalebar")), Minecraft.getMinecraft().fontRenderer);
             }
 
         }
