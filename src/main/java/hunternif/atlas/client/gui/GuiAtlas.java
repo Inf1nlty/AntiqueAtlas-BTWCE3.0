@@ -3,10 +3,7 @@ package hunternif.atlas.client.gui;
 import hunternif.atlas.AntiqueAtlasItems;
 import hunternif.atlas.AntiqueAtlasMod;
 import hunternif.atlas.api.AtlasAPI;
-import hunternif.atlas.client.BiomeTextureMap;
-import hunternif.atlas.client.SubTile;
-import hunternif.atlas.client.Textures;
-import hunternif.atlas.client.TileRenderIterator;
+import hunternif.atlas.client.*;
 import hunternif.atlas.client.gui.core.GuiComponent;
 import hunternif.atlas.client.gui.core.GuiComponentButton;
 import hunternif.atlas.client.gui.core.GuiCursor;
@@ -424,131 +421,152 @@ public class GuiAtlas extends GuiComponent {
         this.dragMapOffsetY = (int)((double)this.dragMapOffsetY * (mapScale / oldScale));
     }
 
+    @Override
     public void drawScreen(int mouseX, int mouseY, float par3) {
-        if (this.DEBUG_RENDERING) {
-            this.renderTimes[this.renderTimesIndex++] = System.currentTimeMillis();
-            if (this.renderTimesIndex == this.renderTimes.length) {
-                this.renderTimesIndex = 0;
-                double elapsed = (double)0.0F;
 
-                for(int i = 0; i < this.renderTimes.length - 1; ++i) {
-                    elapsed += (double)(this.renderTimes[i + 1] - this.renderTimes[i]);
-                }
+        GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS);
+        GL11.glPushMatrix();
 
-                Log.info("GuiAtlas avg. render time: %.3f", new Object[]{elapsed / (double)this.renderTimes.length});
-            }
-        }
-
-        GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-        GL11.glAlphaFunc(516, 0.0F);
-        AtlasRenderHelper.drawFullTexture(Textures.BOOK, (double)this.getGuiX(), (double)this.getGuiY(), 310, 218);
-        if (this.stack != null && this.biomeData != null) {
-            if (this.state.is(this.DELETING_MARKER)) {
-                GL11.glColor4f(1.0F, 1.0F, 1.0F, 0.5F);
-            }
-
-            GL11.glEnable(3089);
-            GL11.glScissor((this.getGuiX() + 17) * this.screenScale, this.mc.displayHeight - (this.getGuiY() + 11 + 194) * this.screenScale, 276 * this.screenScale, 194 * this.screenScale);
-            GL11.glEnable(3042);
-            GL11.glBlendFunc(770, 771);
-            int mapStartX = MathUtil.roundToBase((int)Math.floor(-((double)138.0F + (double)this.mapOffsetX + (double)(2 * this.tileHalfSize)) / mapScale / (double)16.0F), this.tile2ChunkScale);
-            int mapStartZ = MathUtil.roundToBase((int)Math.floor(-((double)97.0F + (double)this.mapOffsetY + (double)(2 * this.tileHalfSize)) / mapScale / (double)16.0F), this.tile2ChunkScale);
-            int mapEndX = MathUtil.roundToBase((int)Math.ceil(((double)138.0F - (double)this.mapOffsetX + (double)(2 * this.tileHalfSize)) / mapScale / (double)16.0F), this.tile2ChunkScale);
-            int mapEndZ = MathUtil.roundToBase((int)Math.ceil(((double)97.0F - (double)this.mapOffsetY + (double)(2 * this.tileHalfSize)) / mapScale / (double)16.0F), this.tile2ChunkScale);
-            int mapStartScreenX = this.getGuiX() + 155 + (int)((double)(mapStartX << 4) * mapScale) + this.mapOffsetX;
-            int mapStartScreenY = this.getGuiY() + 109 + (int)((double)(mapStartZ << 4) * mapScale) + this.mapOffsetY;
-            TileRenderIterator iter = new TileRenderIterator(this.biomeData);
-            iter.setScope((new Rect()).setOrigin(mapStartX, mapStartZ).set(mapStartX, mapStartZ, mapEndX, mapEndZ));
-            iter.setStep(this.tile2ChunkScale);
-
-            while(iter.hasNext()) {
-                for(SubTile subtile : iter.next()) {
-                    if (subtile != null && subtile.tile != null) {
-                        AtlasRenderHelper.drawAutotileCorner(BiomeTextureMap.instance().getTexture(subtile.tile), mapStartScreenX + subtile.x * this.tileHalfSize, mapStartScreenY + subtile.y * this.tileHalfSize, subtile.getTextureU(), subtile.getTextureV(), this.tileHalfSize);
+        try {
+            if (DEBUG_RENDERING) {
+                renderTimes[renderTimesIndex++] = System.currentTimeMillis();
+                if (renderTimesIndex == renderTimes.length) {
+                    renderTimesIndex = 0;
+                    double elapsed = 0;
+                    for (int i = 0; i < renderTimes.length - 1; i++) {
+                        elapsed += renderTimes[i + 1] - renderTimes[i];
                     }
+                    System.out.printf("GuiAtlas avg. render time: %.3f\n", elapsed / renderTimes.length);
                 }
             }
 
-            if (!this.state.is(this.HIDING_MARKERS)) {
-                int markersStartX = MathUtil.roundToBase(mapStartX, 8) / 8 - 1;
-                int markersStartZ = MathUtil.roundToBase(mapStartZ, 8) / 8 - 1;
-                int markersEndX = MathUtil.roundToBase(mapEndX, 8) / 8 + 1;
-                int markersEndZ = MathUtil.roundToBase(mapEndZ, 8) / 8 + 1;
-                double iconScale = this.getIconScale();
+            GL11.glColor4f(1, 1, 1, 1);
+            GL11.glAlphaFunc(GL11.GL_GREATER, 0); // So light detail on tiles is visible
+            AtlasRenderHelper.drawFullTexture(Textures.BOOK, getGuiX(), getGuiY(), WIDTH, HEIGHT);
 
-                for(int x = markersStartX; x <= markersEndX; ++x) {
-                    for(int z = markersStartZ; z <= markersEndZ; ++z) {
-                        List<Marker> markers = this.globalMarkersData.getMarkersAtChunk(x, z);
-                        if (markers != null) {
-                            for(Marker marker : markers) {
-                                this.renderMarker(marker, iconScale);
-                            }
+            if (stack == null || biomeData == null) return;
+
+
+            if (state.is(DELETING_MARKER)) {
+                GL11.glColor4f(1, 1, 1, 0.5f);
+            }
+            GL11.glEnable(GL11.GL_SCISSOR_TEST);
+            GL11.glScissor((getGuiX() + CONTENT_X)*screenScale,
+                    mc.displayHeight - (getGuiY() + CONTENT_Y + MAP_HEIGHT)*screenScale,
+                    MAP_WIDTH*screenScale, MAP_HEIGHT*screenScale);
+            GL11.glEnable(GL11.GL_BLEND);
+            GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+            // Find chunk coordinates of the top left corner of the map.
+            // The 'roundToBase' is required so that when the map scales below the
+            // threshold the tiles don't change when map position changes slightly.
+            // The +-2 at the end provide margin so that tiles at the edges of
+            // the page have their stitched texture correct.
+            int mapStartX = MathUtil.roundToBase((int)Math.floor(-((double)MAP_WIDTH/2d + mapOffsetX + 2*tileHalfSize) / mapScale / 16d), tile2ChunkScale);
+            int mapStartZ = MathUtil.roundToBase((int)Math.floor(-((double)MAP_HEIGHT/2d + mapOffsetY + 2*tileHalfSize) / mapScale / 16d), tile2ChunkScale);
+            int mapEndX = MathUtil.roundToBase((int)Math.ceil(((double)MAP_WIDTH/2d - mapOffsetX + 2*tileHalfSize) / mapScale / 16d), tile2ChunkScale);
+            int mapEndZ = MathUtil.roundToBase((int)Math.ceil(((double)MAP_HEIGHT/2d - mapOffsetY + 2*tileHalfSize) / mapScale / 16d), tile2ChunkScale);
+            int mapStartScreenX = getGuiX() + WIDTH/2 + (int)((mapStartX << 4) * mapScale) + mapOffsetX;
+            int mapStartScreenY = getGuiY() + HEIGHT/2 + (int)((mapStartZ << 4) * mapScale) + mapOffsetY;
+
+            TileRenderIterator iter = new TileRenderIterator(biomeData);
+            iter.setScope(new Rect().setOrigin(mapStartX, mapStartZ).
+                    set(mapStartX, mapStartZ, mapEndX, mapEndZ));
+            iter.setStep(tile2ChunkScale);
+            while (iter.hasNext()) {
+                SubTileQuartet subtiles = iter.next();
+                for (SubTile subtile : subtiles) {
+                    if (subtile == null || subtile.tile == null) continue;
+                    AtlasRenderHelper.drawAutotileCorner(
+                            BiomeTextureMap.instance().getTexture(subtile.tile),
+                            mapStartScreenX + subtile.x * tileHalfSize,
+                            mapStartScreenY + subtile.y * tileHalfSize,
+                            subtile.getTextureU(), subtile.getTextureV(), tileHalfSize);
+                }
+            }
+
+            if (!state.is(HIDING_MARKERS)) {
+                int markersStartX = MathUtil.roundToBase(mapStartX, MarkersData.CHUNK_STEP) / MarkersData.CHUNK_STEP - 1;
+                int markersStartZ = MathUtil.roundToBase(mapStartZ, MarkersData.CHUNK_STEP) / MarkersData.CHUNK_STEP - 1;
+                int markersEndX = MathUtil.roundToBase(mapEndX, MarkersData.CHUNK_STEP) / MarkersData.CHUNK_STEP + 1;
+                int markersEndZ = MathUtil.roundToBase(mapEndZ, MarkersData.CHUNK_STEP) / MarkersData.CHUNK_STEP + 1;
+                double iconScale = getIconScale();
+
+                // Draw global markers:
+                for (int x = markersStartX; x <= markersEndX; x++) {
+                    for (int z = markersStartZ; z <= markersEndZ; z++) {
+                        List<Marker> markers = globalMarkersData.getMarkersAtChunk(x, z);
+                        if (markers == null) continue;
+                        for (Marker marker : markers) {
+                            renderMarker(marker, iconScale);
                         }
                     }
                 }
 
-                if (this.localMarkersData != null) {
-                    for(int x = markersStartX; x <= markersEndX; ++x) {
-                        for(int z = markersStartZ; z <= markersEndZ; ++z) {
-                            List<Marker> markers = this.localMarkersData.getMarkersAtChunk(x, z);
-                            if (markers != null) {
-                                for(Marker marker : markers) {
-                                    this.renderMarker(marker, iconScale);
-                                }
+                // Draw local markers:
+                if (localMarkersData != null) {
+                    for (int x = markersStartX; x <= markersEndX; x++) {
+                        for (int z = markersStartZ; z <= markersEndZ; z++) {
+                            List<Marker> markers = localMarkersData.getMarkersAtChunk(x, z);
+                            if (markers == null) continue;
+                            for (Marker marker : markers) {
+                                renderMarker(marker, iconScale);
                             }
                         }
                     }
                 }
             }
 
-            GL11.glDisable(3089);
-            GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-            AtlasRenderHelper.drawFullTexture(Textures.BOOK_FRAME, (double)this.getGuiX(), (double)this.getGuiY(), 310, 218);
-            double iconScale = this.getIconScale();
-            if (!this.state.is(this.HIDING_MARKERS)) {
-                int playerOffsetX = (int)(this.player.posX * mapScale) + this.mapOffsetX;
-                int playerOffsetZ = (int)(this.player.posZ * mapScale) + this.mapOffsetY;
-                if (playerOffsetX < -138) {
-                    playerOffsetX = -138;
-                }
+            GL11.glDisable(GL11.GL_SCISSOR_TEST);
 
-                if (playerOffsetX > 138) {
-                    playerOffsetX = 138;
-                }
+            // Overlay the frame so that edges of the map are smooth:
+            GL11.glColor4f(1, 1, 1, 1);
+            AtlasRenderHelper.drawFullTexture(Textures.BOOK_FRAME, getGuiX(), getGuiY(), WIDTH, HEIGHT);
+            double iconScale = getIconScale();
 
-                if (playerOffsetZ < -97) {
-                    playerOffsetZ = -97;
-                }
-
-                if (playerOffsetZ > 95) {
-                    playerOffsetZ = 95;
-                }
-
-                GL11.glColor4f(1.0F, 1.0F, 1.0F, this.state.is(this.PLACING_MARKER) ? 0.5F : 1.0F);
+            // Draw player icon:
+            if (!state.is(HIDING_MARKERS)) {
+                // How much the player has moved from the top left corner of the map, in pixels:
+                int playerOffsetX = (int)(player.posX * mapScale) + mapOffsetX;
+                int playerOffsetZ = (int)(player.posZ * mapScale) + mapOffsetY;
+                if (playerOffsetX < -MAP_WIDTH/2) playerOffsetX = -MAP_WIDTH/2;
+                if (playerOffsetX > MAP_WIDTH/2) playerOffsetX = MAP_WIDTH/2;
+                if (playerOffsetZ < -MAP_HEIGHT/2) playerOffsetZ = -MAP_HEIGHT/2;
+                if (playerOffsetZ > MAP_HEIGHT/2 - 2) playerOffsetZ = MAP_HEIGHT/2 - 2;
+                // Draw the icon:
+                GL11.glColor4f(1, 1, 1, state.is(PLACING_MARKER) ? 0.5f : 1);
                 GL11.glPushMatrix();
-                GL11.glTranslated((double)(this.getGuiX() + 155 + playerOffsetX), (double)(this.getGuiY() + 109 + playerOffsetZ), (double)0.0F);
-                float playerRotation = (float)Math.round(this.player.rotationYaw / 360.0F * 16.0F) / 16.0F * 360.0F;
-                GL11.glRotatef(180.0F + playerRotation, 0.0F, 0.0F, 1.0F);
-                GL11.glTranslated((double)-3.0F * iconScale, (double)-4.0F * iconScale, (double)0.0F);
-                AtlasRenderHelper.drawFullTexture(Textures.PLAYER, (double)0.0F, (double)0.0F, (int)Math.round((double)7.0F * iconScale), (int)Math.round((double)8.0F * iconScale));
+                GL11.glTranslated(getGuiX() + WIDTH/2 + playerOffsetX, getGuiY() + HEIGHT/2 + playerOffsetZ, 0);
+                float playerRotation = (float) Math.round(player.rotationYaw / 360f * PLAYER_ROTATION_STEPS) / PLAYER_ROTATION_STEPS * 360f;
+                GL11.glRotatef(180 + playerRotation, 0, 0, 1);
+                GL11.glTranslated(-PLAYER_ICON_WIDTH/2*iconScale, -PLAYER_ICON_HEIGHT/2*iconScale, 0);
+                AtlasRenderHelper.drawFullTexture(Textures.PLAYER, 0, 0,
+                        (int)Math.round(PLAYER_ICON_WIDTH*iconScale), (int)Math.round(PLAYER_ICON_HEIGHT*iconScale));
                 GL11.glPopMatrix();
-                GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+                GL11.glColor4f(1, 1, 1, 1);
             }
 
+            // Draw buttons:
             super.drawScreen(mouseX, mouseY, par3);
-            GL11.glEnable(3042);
-            GL11.glBlendFunc(770, 771);
-            if (this.state.is(this.PLACING_MARKER)) {
-                GL11.glColor4f(1.0F, 1.0F, 1.0F, 0.5F);
-                AtlasRenderHelper.drawFullTexture(MarkerTextureMap.instance().getTexture(this.markerFinalizer.selectedType), (double)mouseX - (double)16.0F * iconScale, (double)mouseY - (double)16.0F * iconScale, (int)Math.round((double)32.0F * iconScale), (int)Math.round((double)32.0F * iconScale));
-                GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+
+            // Draw the semi-transparent marker attached to the cursor when placing a new marker:
+            GL11.glEnable(GL11.GL_BLEND);
+            GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+            if (state.is(PLACING_MARKER)) {
+                GL11.glColor4f(1, 1, 1, 0.5f);
+                AtlasRenderHelper.drawFullTexture(
+                        MarkerTextureMap.instance().getTexture(markerFinalizer.selectedType),
+                        mouseX - MARKER_SIZE/2*iconScale, mouseY - MARKER_SIZE/2*iconScale,
+                        (int)Math.round(MARKER_SIZE*iconScale), (int)Math.round(MARKER_SIZE*iconScale));
+                GL11.glColor4f(1, 1, 1, 1);
             }
 
-            if (this.state.is(this.EXPORTING_IMAGE)) {
-                this.drawDefaultBackground();
-                this.progressBar.draw((this.width - 100) / 2, this.height / 2 - 34);
+            if (state.is(EXPORTING_IMAGE)) {
+                drawDefaultBackground();
+                progressBar.draw((width - 100)/2, height/2 - 34);
             }
-
+        } finally {
+            GL11.glPopMatrix();
+            GL11.glPopAttrib();
         }
     }
 
