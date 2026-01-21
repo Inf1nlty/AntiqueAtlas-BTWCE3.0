@@ -1,8 +1,3 @@
-//
-// Source code recreated from a .class file by IntelliJ IDEA
-// (powered by FernFlower decompiler)
-//
-
 package hunternif.atlas.client.gui;
 
 import hunternif.atlas.AntiqueAtlasItems;
