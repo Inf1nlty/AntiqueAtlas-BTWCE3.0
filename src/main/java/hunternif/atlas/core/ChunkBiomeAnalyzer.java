@@ -1,9 +1,9 @@
 package hunternif.atlas.core;
 
 import hunternif.atlas.util.ByteUtil;
-import net.minecraft.src. BiomeGenBase;
-import net.minecraft. src.Block;
-import net.minecraft.src. Chunk;
+import net.minecraft.src.BiomeGenBase;
+import net.minecraft.src.Block;
+import net.minecraft.src.Chunk;
 
 /**
  * Analyzes chunks to determine the dominant biome.
@@ -30,7 +30,8 @@ public class ChunkBiomeAnalyzer {
      * @return The biome ID, or NOT_FOUND if unable to determine
      */
     public int getMeanBiomeID(Chunk chunk) {
-        BiomeGenBase[] biomes = BiomeGenBase. biomeList;
+        BiomeGenBase[] biomes = BiomeGenBase.biomeList;
+
         int[] chunkBiomes = ByteUtil.unsignedByteToIntArray(chunk.getBiomeArray());
         int[] biomeOccurrences = new int[biomes.length];
 
@@ -39,21 +40,22 @@ public class ChunkBiomeAnalyzer {
                 int biomeID = chunkBiomes[x << 4 | z];
                 int y = chunk.getHeightValue(x, z);
 
-                // Get block at top of column
-                int blockID = chunk.getBlockID(x, y - 1, z);
+                // 确保 y-1 不会越界（虽然 getHeightValue 通常 > 0，但在虚空区块可能为 0）
+                int blockID = 0;
+                if (y > 0) {
+                    blockID = chunk.getBlockID(x, y - 1, z);
+                }
 
-                // Check if it's a water pool (water on top but not in swamp)
-                if (blockID == Block.waterStill. blockID &&
+                if (blockID == Block.waterStill.blockID &&
                         biomeID != BiomeGenBase.swampland.biomeID &&
                         biomeID != BiomeGenBase.swampland.biomeID + 128) {
                     biomeOccurrences[waterPoolBiomeID] += waterPoolMultiplier;
                 }
 
-                // Count biome occurrences with multipliers
-                if (biomeID >= 0 && biomeID < biomes. length && biomes[biomeID] != null) {
+                if (biomeID >= 0 && biomeID < biomes.length && biomes[biomeID] != null) {
                     BiomeGenBase biome = biomes[biomeID];
 
-                    if (biome. equals(BiomeGenBase.river) || biome.equals(BiomeGenBase.ocean)) {
+                    if (biome.equals(BiomeGenBase.river) || biome.equals(BiomeGenBase.ocean)) {
                         biomeOccurrences[biomeID] += waterMultiplier;
                     } else if (biome.equals(BiomeGenBase.beach)) {
                         biomeOccurrences[biomeID] += beachMultiplier;
@@ -64,7 +66,6 @@ public class ChunkBiomeAnalyzer {
             }
         }
 
-        // Find biome with highest occurrence count
         int meanBiomeId = NOT_FOUND;
         int meanBiomeOccurrences = 0;
 
