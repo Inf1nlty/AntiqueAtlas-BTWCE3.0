@@ -11,6 +11,8 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.src.*;
 
+import java.util.List;
+
 public class ItemAtlas extends Item {
 
     public static final String ATLAS_DATA_PREFIX = "aAtlas_";
@@ -101,6 +103,12 @@ public class ItemAtlas extends Item {
 
     public static void setAtlasID(ItemStack stack, int atlasID) {
         stack.setItemDamage(atlasID);
+    }
+
+    @Override
+    public String getItemDisplayName(ItemStack stack) {
+        int atlasID = stack.getItemDamage();
+        return super.getItemDisplayName(stack) + " #" + atlasID;
     }
 
     public AtlasData getAtlasData(ItemStack stack, World world) {
