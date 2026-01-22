@@ -45,30 +45,41 @@ public class BiomeTextureMap extends SaveData {
                 Log.error("Biome ID %d is null. Auto-registering default texture set", new Object[]{biomeID});
                 this.setTexture(biomeID, defaultTexture);
             } else {
-                if (biome.equals(BiomeGenBase.swampland)) {
+                // Taiga biomes
+                if (biome.equals(BiomeGenBase.taiga) || biome.equals(BiomeGenBase.taigaHills)) {
+                    this.setTexture(biomeID, TextureSet.PINES);
+                }
+                // Swampland
+                else if (biome.equals(BiomeGenBase.swampland)) {
                     this.setTexture(biomeID, TextureSet.SWAMP);
-                } else if (!biome.equals(BiomeGenBase.river) && !biome.equals(BiomeGenBase.ocean)) {
-                    if (biome.equals(BiomeGenBase.beach)) {
-                        this.setTexture(biomeID, TextureSet.SHORE);
-                    } else if (!biome.equals(BiomeGenBase.jungle) && !biome.equals(BiomeGenBase.jungleHills)) {
-                        if (!biome.equals(BiomeGenBase.forest) && !biome.equals(BiomeGenBase.forestHills)) {
-                            if (!biome.equals(BiomeGenBase.plains) && !biome.equals(BiomeGenBase.desert)) {
-                                if (!biome.equals(BiomeGenBase.extremeHills) && !biome.equals(BiomeGenBase.iceMountains)) {
-                                    this.setTexture(biomeID, defaultTexture);
-                                } else {
-                                    this.setTexture(biomeID, TextureSet.MOUNTAINS_NAKED);
-                                }
-                            } else {
-                                this.setTexture(biomeID, TextureSet.PLAINS);
-                            }
-                        } else {
-                            this.setTexture(biomeID, TextureSet.DENSE_FOREST);
-                        }
-                    } else {
-                        this.setTexture(biomeID, TextureSet.JUNGLE);
-                    }
-                } else {
+                }
+                // Water bodies
+                else if (biome.equals(BiomeGenBase.river) || biome.equals(BiomeGenBase.ocean)) {
                     this.setTexture(biomeID, TextureSet.WATER);
+                }
+                // Beach
+                else if (biome.equals(BiomeGenBase.beach)) {
+                    this.setTexture(biomeID, TextureSet.SHORE);
+                }
+                // Jungle
+                else if (biome.equals(BiomeGenBase.jungle) || biome.equals(BiomeGenBase.jungleHills)) {
+                    this.setTexture(biomeID, TextureSet.JUNGLE);
+                }
+                // Forest
+                else if (biome.equals(BiomeGenBase.forest) || biome.equals(BiomeGenBase.forestHills)) {
+                    this.setTexture(biomeID, TextureSet.DENSE_FOREST);
+                }
+                // Plains/Desert
+                else if (biome.equals(BiomeGenBase.plains) || biome.equals(BiomeGenBase.desert)) {
+                    this.setTexture(biomeID, TextureSet.PLAINS);
+                }
+                // Extreme hills/Ice mountains
+                else if (biome.equals(BiomeGenBase.extremeHills) || biome.equals(BiomeGenBase.iceMountains)) {
+                    this.setTexture(biomeID, TextureSet.MOUNTAINS_NAKED);
+                }
+                // Default
+                else {
+                    this.setTexture(biomeID, defaultTexture);
                 }
 
                 Log.info("Auto-registered standard texture set for biome %d", new Object[]{biomeID});
