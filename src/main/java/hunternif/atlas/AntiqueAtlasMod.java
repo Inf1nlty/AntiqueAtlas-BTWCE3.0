@@ -40,7 +40,8 @@ public class AntiqueAtlasMod {
     }
 
     public static void onPlayerLogin(EntityPlayerMP player) {
-        if (player != null && ! player.worldObj.isRemote) {
+        if (player != null && !player.worldObj.isRemote) {
+//            extBiomeData.onWorldLoad(player.worldObj);
             extBiomeData.onPlayerLogin(player);
             globalMarkersData.onPlayerLogin(player);
             villageWatcher.onWorldLoad(player.worldObj);

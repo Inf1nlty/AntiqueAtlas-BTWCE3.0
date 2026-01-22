@@ -1,20 +1,49 @@
 package hunternif.atlas.ext;
 
 import com.google.common.collect.BiMap;
-import com.google.common.collect. HashBiMap;
+import com.google.common.collect.HashBiMap;
 import hunternif.atlas.network.AtlasNetwork;
 import hunternif.atlas.network.TileNameIDPacket;
 import hunternif.atlas.util.Log;
 import hunternif.atlas.util.SaveData;
-import net.minecraft. src.EntityPlayer;
+import net.minecraft.src.EntityPlayer;
 import net.minecraft.src.EntityPlayerMP;
 
 import java.util.Map;
 
 public class ExtTileIdMap extends SaveData {
     private static final ExtTileIdMap INSTANCE = new ExtTileIdMap();
+
+    // Village:
     public static final String TILE_VILLAGE_HOUSE = "npcVillageDoor";
     public static final String TILE_VILLAGE_TERRITORY = "npcVillageTerritory";
+    public static final String TILE_VILLAGE_LIBRARY = "npcVillageLibrary";
+    public static final String TILE_VILLAGE_SMITHY = "npcVillageSmithy";
+    public static final String TILE_VILLAGE_L_HOUSE = "npcVillageLHouse";
+    public static final String TILE_VILLAGE_FARMLAND_SMALL = "npcVillageFarmlandSmall";
+    public static final String TILE_VILLAGE_FARMLAND_LARGE = "npcVillageFarmlandLarge";
+    public static final String TILE_VILLAGE_WELL = "npcVillageWell";
+    public static final String TILE_VILLAGE_TORCH = "npcVillageTorch";
+    public static final String TILE_VILLAGE_HUT = "npcVillageHut";
+    public static final String TILE_VILLAGE_SMALL_HOUSE = "npcVillageSmallHouse";
+    public static final String TILE_VILLAGE_BUTCHERS_SHOP = "npcVillageButchersShop";
+    public static final String TILE_VILLAGE_CHURCH = "npcVillageChurch";
+
+    // Nether & Nether Fortress:
+    public static final String TILE_LAVA = "lava";
+    public static final String TILE_LAVA_SHORE = "lavaShore";
+    public static final String TILE_NETHER_BRIDGE = "netherBridge";
+    public static final String TILE_NETHER_BRIDGE_X = "netherBridgeX";
+    public static final String TILE_NETHER_BRIDGE_Z = "netherBridgeZ";
+    public static final String TILE_NETHER_BRIDGE_END_X = "netherBridgeEndX";
+    public static final String TILE_NETHER_BRIDGE_END_Z = "netherBridgeEndZ";
+    public static final String TILE_NETHER_BRIDGE_GATE = "netherBridgeGate";
+    public static final String TILE_NETHER_TOWER = "netherTower";
+    public static final String TILE_NETHER_WALL = "netherWall";
+    public static final String TILE_NETHER_HALL = "netherHall";
+    public static final String TILE_NETHER_FORT_STAIRS = "netherFortStairs";
+    public static final String TILE_NETHER_THRONE = "netherThrone";
+
     public static final int NOT_FOUND = -1;
     private int lastID = -1;
     private final BiMap<String, Integer> nameToIdMap = HashBiMap.create();
@@ -30,7 +59,6 @@ public class ExtTileIdMap extends SaveData {
             this.nameToIdMap.put(uniqueName, id);
             this.markDirty();
         }
-
         return id;
     }
 
@@ -49,8 +77,7 @@ public class ExtTileIdMap extends SaveData {
                     continue;
                 }
             }
-
-            return this. lastID;
+            return this.lastID;
         }
     }
 
@@ -63,12 +90,10 @@ public class ExtTileIdMap extends SaveData {
     }
 
     public void syncOnPlayer(EntityPlayer player) {
-
         if (!(player instanceof EntityPlayerMP)) {
             Log.warn("syncOnPlayer called with non-server player: {}", new Object[]{player});
             return;
         }
-
-        AtlasNetwork. sendTo(new TileNameIDPacket(this.nameToIdMap), (EntityPlayerMP)player);
+        AtlasNetwork.sendTo(new TileNameIDPacket(this.nameToIdMap), (EntityPlayerMP)player);
     }
 }

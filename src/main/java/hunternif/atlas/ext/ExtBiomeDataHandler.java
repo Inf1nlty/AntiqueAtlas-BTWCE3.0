@@ -9,20 +9,19 @@ public class ExtBiomeDataHandler {
 
 //    public void onWorldLoad(World world) {
 //        if (!world.isRemote) {
-//            this.data = (ExtBiomeData)world.loadItemData(ExtBiomeData.class, "aAtlasExtTiles");
+//            this.data = (ExtBiomeData) world.loadItemData(ExtBiomeData.class, DATA_KEY);
 //            if (this.data == null) {
-//                this.data = new ExtBiomeData("aAtlasExtTiles");
+//                this.data = new ExtBiomeData(DATA_KEY);
 //                this.data.markDirty();
-//                world.setItemData("aAtlasExtTiles", this.data);
+//                world.setItemData(DATA_KEY, this.data);
 //            }
 //        }
 //    }
 
     public ExtBiomeData getData() {
         if (this.data == null) {
-            this.data = new ExtBiomeData("aAtlasExtTiles");
+            this.data = new ExtBiomeData(DATA_KEY);
         }
-
         return this.data;
     }
 
